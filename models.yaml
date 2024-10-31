@@ -1,0 +1,14 @@
+models:
+  chat:
+    -
+      type: huggingface
+      model_id: "ericzzz/falcon-rw-1b-instruct-openorca"
+      filenames:
+        - "config.json"
+        - "generation_config.json"
+        - "merges.txt"
+        - "model.safetensors"
+        - "special_tokens_map.json"
+        - "tokenizer.json"
+        - "tokenizer_config.json"
+        - "vocab.json"
