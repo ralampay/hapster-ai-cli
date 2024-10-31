@@ -1,14 +1,27 @@
 models:
-  chat:
-    -
-      type: huggingface
-      model_id: "ericzzz/falcon-rw-1b-instruct-openorca"
-      filenames:
-        - "config.json"
-        - "generation_config.json"
-        - "merges.txt"
-        - "model.safetensors"
-        - "special_tokens_map.json"
-        - "tokenizer.json"
-        - "tokenizer_config.json"
-        - "vocab.json"
+  -
+    type: huggingface
+    category: ["text_summarization"]
+    model_id: "allenai/led-base-16384"
+    filenames:
+      - "config.json"
+      - "generation_config.json"
+      - "merges.txt"
+      - "pytorch_model.bin"
+      - "special_tokens_map.json"
+      - "tf_model.h5"
+      - "tokenizer_config.json"
+      - "vocab.json"
+  -
+    type: huggingface
+    category: ["chat", "text_summarization"]
+    model_id: "ericzzz/falcon-rw-1b-instruct-openorca"
+    filenames:
+      - "config.json"
+      - "generation_config.json"
+      - "merges.txt"
+      - "model.safetensors"
+      - "special_tokens_map.json"
+      - "tokenizer.json"
+      - "tokenizer_config.json"
+      - "vocab.json"

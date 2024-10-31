@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2Se
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils.commons import load_huggingface_config
+from utils.commons import load_huggingface_config, find_model_by_category
 
 class AnalyzeDocument:
     def __init__(self, settings=None, models=None, hugging_face_api_key=None):
@@ -12,17 +12,27 @@ class AnalyzeDocument:
         self.models = models
         self.hugging_face_api_key = hugging_face_api_key
 
-        self.chat_model_config = next((item for item in self.models.get("chat") if item.get("model_id") == self.settings["chat"]), None)
+        self.chat_model_id = self.settings["chat"]
+        self.text_summarization_model_id = self.settings["text_summarization"]
+
+        self.chat_model_config = find_model_by_category(self.models, "chat", self.chat_model_id)
+        self.text_summarization_model_config = find_model_by_category(self.models, "text_summarization", self.text_summarization_model_id)
 
         self.context = []
 
         if self.chat_model_config["type"] == "huggingface":
             load_huggingface_config(self.chat_model_config, self.hugging_face_api_key)
 
-        self.model_id = self.chat_model_config["model_id"]
+        if self.text_summarization_model_config["type"] == "huggingface":
+            load_huggingface_config(self.text_summarization_model_config, self.hugging_face_api_key)
 
-        self.chat_tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        self.chat_model = AutoModelForCausalLM.from_pretrained(self.model_id)
+        self.chat_model_id = self.chat_model_config["model_id"]
+        self.chat_tokenizer = AutoTokenizer.from_pretrained(self.chat_model_id)
+        self.chat_model = AutoModelForCausalLM.from_pretrained(self.chat_model_id)
+
+        self.text_summarization_model_id = self.text_summarization_model_config["model_id"]
+        self.text_summarization_tokenizer = AutoTokenizer.from_pretrained(self.text_summarization_model_id)
+        self.text_summarization_chat_model = AutoModelForSeq2SeqLM.from_pretrained(self.text_summarization_model_id)
 
     def execute(self):
         self.print_meta()
