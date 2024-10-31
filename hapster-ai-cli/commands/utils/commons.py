@@ -1,5 +1,13 @@
 from huggingface_hub import hf_hub_download
 import PyPDF2
+from markdown import markdown
+import re
+
+def extract_file_path(text):
+    match = re.search(r"@document\s+([^\s]+)", text)
+    if match:
+        return match.group(1)
+    return None
 
 def find_model_by_category(models_data, category, model_id):
     for model in models_data:
@@ -10,7 +18,7 @@ def find_model_by_category(models_data, category, model_id):
 
 def extract_text_from_pdf(pdf_path):
     with open(pdf_path, 'rb') as pdf_file:
-        pdf_reader = PyPDF.PdfReader(pdf_file)
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
         num_pages = len(pdf_reader.pages)
 
         text = ""
@@ -19,7 +27,7 @@ def extract_text_from_pdf(pdf_path):
             page = pdf_reader.pages[page_num]
             text += page.extract_text()
 
-        return text
+        return markdown(text)
 
 def load_huggingface_config(settings, hugging_face_api_key):
     print("Loading files...")

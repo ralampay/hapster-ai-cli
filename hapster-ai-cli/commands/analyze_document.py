@@ -1,10 +1,11 @@
 import os
 import sys
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils.commons import load_huggingface_config, find_model_by_category
+from utils.commons import load_huggingface_config, find_model_by_category, extract_text_from_pdf, extract_file_path
 
 class AnalyzeDocument:
     def __init__(self, settings=None, models=None, hugging_face_api_key=None):
@@ -32,7 +33,7 @@ class AnalyzeDocument:
 
         self.text_summarization_model_id = self.text_summarization_model_config["model_id"]
         self.text_summarization_tokenizer = AutoTokenizer.from_pretrained(self.text_summarization_model_id)
-        self.text_summarization_chat_model = AutoModelForSeq2SeqLM.from_pretrained(self.text_summarization_model_id)
+        self.text_summarization_model = AutoModelForSeq2SeqLM.from_pretrained(self.text_summarization_model_id)
 
     def execute(self):
         self.print_meta()
@@ -40,13 +41,52 @@ class AnalyzeDocument:
         while True:
             prompt = input("Enter prompt (use @document [filepath] to start summarizing or type exit / quit to end): ")
 
+            print(f"prompt: {prompt}")
+
             if prompt.lower() in ["exit", "quit"]:
                 break
 
-            response = self.generate_chat_response(prompt)
+            elif "@document" in prompt:
+                doc_filepath = extract_file_path(prompt)
 
-            print("AI:")
-            print(response)
+                if doc_filepath is not None:
+                    content = extract_text_from_pdf(doc_filepath)
+
+                    prompt = f"Summarize --- {content} ---"
+
+                    response = self.generate_document_summary(prompt)
+
+                    print("Text Summarizer AI:")
+                    print(response)
+                else:
+                    print("File not found.")
+            else:
+                response = self.generate_chat_response(prompt)
+
+                print("Chat AI:")
+                print(response)
+
+    def generate_document_summary(self, prompt, max_length=20240, max_new_tokens=150, temperature=0.7, top_p=0.9):
+        prompt = "\n".join(self.context)
+
+        inputs = self.text_summarization_tokenizer(prompt, padding="max_length", max_length=max_length, return_tensors="pt", truncation=True)
+
+        global_attention_mask = torch.zeros_like(inputs["attention_mask"])
+
+        outputs = self.text_summarization_model.generate(
+            inputs["input_ids"],
+            max_length=max_length,
+            global_attention_mask=global_attention_mask
+        )
+
+        response = ""
+
+        for output in outputs:
+            response += self.text_summarization_tokenizer.decode(output, skip_special_tokens=True)
+
+        self.context.append(f"AI: {response}")
+
+        return response
 
     def generate_chat_response(self, prompt, max_length=10000, max_new_tokens=150, temperature=0.7, top_p=0.9):
         self.context.append(f"User: {prompt}")
@@ -78,3 +118,4 @@ class AnalyzeDocument:
     def print_meta(self):
         print("AI Operation: Analyize Document")
         print(f"Chat Model: {self.settings.get("chat")}")
+        print(f"Text Summarization Model: {self.settings.get("text_summarization")}")

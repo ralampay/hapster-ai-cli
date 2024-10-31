@@ -1,4 +1,5 @@
 mas:
   document_analyzer:
     chat: "ericzzz/falcon-rw-1b-instruct-openorca"
-    text_summarization: "allenai/led-base-16384"
+    #text_summarization: "allenai/led-base-16384"
+    text_summarization: "ericzzz/falcon-rw-1b-instruct-openorca"
