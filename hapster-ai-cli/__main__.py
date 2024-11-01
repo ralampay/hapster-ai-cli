@@ -66,6 +66,6 @@ def print_settings():
     print(f"DEVICE: {device}")
 
 if __name__ == "__main__":
-    print_settings()
+    #print_settings()
 
     main()

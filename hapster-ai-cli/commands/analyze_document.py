@@ -1,7 +1,10 @@
 import os
 import sys
 import torch
+from termcolor import colored
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, pipeline
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -21,28 +24,28 @@ class AnalyzeDocument:
 
         self.context = []
 
+        print(colored(f"Initializing chat ai agent {self.chat_model_id}...", "magenta"))
         if self.chat_model_config["type"] == "huggingface":
             load_huggingface_config(self.chat_model_config, self.hugging_face_api_key)
 
-        if self.text_summarization_model_config["type"] == "huggingface":
-            load_huggingface_config(self.text_summarization_model_config, self.hugging_face_api_key)
-
         self.chat_tokenizer = AutoTokenizer.from_pretrained(self.chat_model_id)
         self.chat_model = AutoModelForCausalLM.from_pretrained(self.chat_model_id)
+
+        print(colored(f"Initializing text summarizer ai agent {self.text_summarization_model_id}...", "magenta"))
+        if self.text_summarization_model_config["type"] == "huggingface":
+            load_huggingface_config(self.text_summarization_model_config, self.hugging_face_api_key)
 
         self.text_summarization_tokenizer = AutoTokenizer.from_pretrained(self.text_summarization_model_id)
         self.text_summarization_model = AutoModelForSeq2SeqLM.from_pretrained(self.text_summarization_model_id)
 
     def execute(self):
-        self.print_meta()
-
         while True:
-            prompt = input("Enter prompt (use @document [filepath] to start summarizing or type exit / quit to end): ")
+            prompt = input(colored("Enter prompt (use @summarize [filepath] to start summarizing or type exit / quit to end):\n", "light_cyan"))
 
             if prompt.lower() in ["exit", "quit"]:
                 break
 
-            elif "@document" in prompt:
+            elif "@summarize" in prompt:
                 doc_filepath = extract_file_path(prompt)
 
                 if doc_filepath is not None:
@@ -56,24 +59,25 @@ class AnalyzeDocument:
 
                     prompt = f"Summarize --- {content} ---"
 
-                    response = self.generate_document_summary(prompt)
+                    with yaspin(text="Generating response...", color="cyan") as spinner:
+                        response = self.generate_document_summary(prompt)
+                        spinner.ok("✔")
 
-                    print("Text Summarizer AI:")
+                    print(colored("Text Summarizer AI:\n", "light_blue"))
                     print(response)
                 else:
                     print("File not found.")
             else:
-                response = self.generate_chat_response(prompt)
+                with yaspin(text="Generating response...", color="cyan") as spinner:
+                    response = self.generate_chat_response(prompt)
+                    spinner.ok("✔")
 
-                print("Chat AI:")
+                print(colored("Chat AI:\n", "light_blue"))
                 print(response)
 
+            print("\n")
+
     def generate_document_summary(self, prompt, max_length=16384, max_new_tokens=150, temperature=0.7, top_p=0.9):
-        # Do not join prompt when summarizing
-        #self.context.append(f"User: {prompt}")
-
-        #prompt = "\n".join(self.context)
-
         summarizer = pipeline("summarization", model=self.text_summarization_model_id)
 
         result = summarizer(
@@ -119,8 +123,3 @@ class AnalyzeDocument:
         self.context.append(f"AI: {response}")
 
         return response
-
-    def print_meta(self):
-        print("AI Operation: Analyize Document")
-        print(f"Chat Model: {self.settings.get("chat")}")
-        print(f"Text Summarization Model: {self.settings.get("text_summarization")}")

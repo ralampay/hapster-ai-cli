@@ -100,6 +100,6 @@ class IllustrateStory:
         return response
 
     def print_meta(self):
-        print("AI Operation: Analyize Document")
+        print("AI Operation: Analyze Document")
         print(f"Chat Model: {self.settings.get("chat")}")
         print(f"Image Generator Model: {self.settings.get("image_generator")}")

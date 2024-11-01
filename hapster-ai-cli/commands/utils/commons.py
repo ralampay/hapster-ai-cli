@@ -3,6 +3,8 @@ import PyPDF2
 from markdown import markdown
 import re
 import os
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 def get_file_extension(path):
     return os.path.splitext(path)[1]
@@ -14,7 +16,7 @@ def extract_image_path(text):
     return None
 
 def extract_file_path(text):
-    match = re.search(r"@document\s+([^\s]+)", text)
+    match = re.search(r"@summarize\s+([^\s]+)", text)
     if match:
         return match.group(1)
     return None
@@ -46,13 +48,12 @@ def extract_text_from_pdf(pdf_path):
         return markdown(text)
 
 def load_huggingface_config(settings, hugging_face_api_key):
-    print("Loading files...")
+    with yaspin(text="Loading model files...", color="cyan") as spinner:
+        for filename in settings["filenames"]:
+            downloaded_model_path = hf_hub_download(
+                repo_id=settings["model_id"],
+                filename=filename,
+                token=hugging_face_api_key
+            )
 
-    for filename in settings["filenames"]:
-        downloaded_model_path = hf_hub_download(
-            repo_id=settings["model_id"],
-            filename=filename,
-            token=hugging_face_api_key
-        )
-
-        print(f"Downloaded file: {downloaded_model_path}")
+        spinner.ok("✔")
