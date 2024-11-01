@@ -4,7 +4,7 @@ import torch
 from PIL import Image
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM
-from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
+from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler, DDIMScheduler
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -60,16 +60,19 @@ class IllustrateStory:
         prompt = "\n".join(self.context)
 
         scheduler = EulerDiscreteScheduler.from_pretrained(self.image_generator_model_id, subfolder="scheduler")
-        pipe = StableDiffusionPipeline.from_pretrained(self.image_generator_model_id, scheduler=scheduler, torch_dtype=torch.float16)
-        
+        pipe = StableDiffusionPipeline.from_pretrained(self.image_generator_model_id, scheduler=scheduler, torch_dtype=torch.float16, low_cpu_mem_usage=True)
+      
+        # Optional attention slicing to save memory
+        #pipe.enable_attention_slicing(0)
+        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
         pipe.height = 128
         pipe.width = 128
 
-        generated_image = pipe(prompt).images[0]
+        generated_image = pipe(prompt, num_inferences=15, guidance_scale=5).images[0]
 
         return generated_image
 
-    def generate_chat_response(self, prompt, max_length=10000, max_new_tokens=150, temperature=0.7, top_p=0.9):
+    def generate_chat_response(self, prompt, max_length=1000, max_new_tokens=150, temperature=0.7, top_p=0.9):
         self.context.append(f"User: {prompt}")
         prompt = "\n".join(self.context)
 
