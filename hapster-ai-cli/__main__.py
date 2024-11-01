@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from commands.analyze_document import AnalyzeDocument
+from commands.illustrate_story import IllustrateStory
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -32,7 +33,7 @@ if torch.cuda.is_available():
 def main():
     parser = argparse.ArgumentParser(description="HAC: Hapster AI CLI")
 
-    parser.add_argument("--command", type=str, default="analyze_document")
+    parser.add_argument("--command", type=str, default="illustrate_story")
 
     args = parser.parse_args()
 
@@ -41,6 +42,15 @@ def main():
     if command == "analyze_document":
         cmd = AnalyzeDocument(
             settings=config_mas.get('mas').get("document_analyzer"),
+            models=config_models.get('models'),
+            hugging_face_api_key=hugging_face_api_key
+        )
+
+        cmd.execute()
+
+    elif command == "illustrate_story":
+        cmd = IllustrateStory(
+            settings=config_mas.get('mas').get("illustrate_story"),
             models=config_models.get('models'),
             hugging_face_api_key=hugging_face_api_key
         )

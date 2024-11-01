@@ -14,7 +14,7 @@ models:
       - "vocab.json"
   -
     type: huggingface
-    category: ["chat", "text_summarization"]
+    category: ["chat"]
     model_id: "ericzzz/falcon-rw-1b-instruct-openorca"
     filenames:
       - "config.json"
@@ -25,3 +25,33 @@ models:
       - "tokenizer.json"
       - "tokenizer_config.json"
       - "vocab.json"
+  -
+    type: huggingface
+    category: ["image_generator"]
+    model_id: "stabilityai/stable-diffusion-2-1-base"
+    filenames:
+      - "model_index.json"
+      - "feature_extractor/preprocessor_config.json"
+      - "scheduler/scheduler_config.json"
+      - "text_encoder/config.json"
+      - "text_encoder/model.fp16.safetensors"
+      - "text_encoder/model.safetensors"
+      - "text_encoder/pytorch_model.bin"
+      - "text_encoder/pytorch_model.fp16.bin"
+      - "tokenizer/merges.txt"
+      - "tokenizer/special_tokens_map.json"
+      - "tokenizer/tokenizer_config.json"
+      - "tokenizer/vocab.json"
+      - "unet/config.json"
+      - "unet/diffusion_pytorch_model.bin"
+      - "unet/diffusion_pytorch_model.fp16.bin"
+      - "unet/diffusion_pytorch_model.fp16.safetensors"
+      - "unet/diffusion_pytorch_model.safetensors"
+      - "vae/diffusion_pytorch_model.bin"
+      - "vae/diffusion_pytorch_model.fp16.bin"
+      - "vae/diffusion_pytorch_model.fp16.safetensors"
+      - "vae/diffusion_pytorch_model.safetensors"
+      - "v2-1_512-ema-pruned.ckpt"
+      - "v2-1_512-ema-pruned.safetensors"
+      - "v2-1_512-nonema-pruned.ckpt"
+      - "v2-1_512-nonema-pruned.safetensors"

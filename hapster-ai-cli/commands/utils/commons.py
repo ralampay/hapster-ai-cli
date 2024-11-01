@@ -3,6 +3,12 @@ import PyPDF2
 from markdown import markdown
 import re
 
+def extract_image_path(text):
+    match = re.search(r"@generate\s+([^\s]+)", text)
+    if match:
+        return match.group(1)
+    return None
+
 def extract_file_path(text):
     match = re.search(r"@document\s+([^\s]+)", text)
     if match:

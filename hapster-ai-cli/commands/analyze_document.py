@@ -27,11 +27,9 @@ class AnalyzeDocument:
         if self.text_summarization_model_config["type"] == "huggingface":
             load_huggingface_config(self.text_summarization_model_config, self.hugging_face_api_key)
 
-        self.chat_model_id = self.chat_model_config["model_id"]
         self.chat_tokenizer = AutoTokenizer.from_pretrained(self.chat_model_id)
         self.chat_model = AutoModelForCausalLM.from_pretrained(self.chat_model_id)
 
-        self.text_summarization_model_id = self.text_summarization_model_config["model_id"]
         self.text_summarization_tokenizer = AutoTokenizer.from_pretrained(self.text_summarization_model_id)
         self.text_summarization_model = AutoModelForSeq2SeqLM.from_pretrained(self.text_summarization_model_id)
 
@@ -40,8 +38,6 @@ class AnalyzeDocument:
 
         while True:
             prompt = input("Enter prompt (use @document [filepath] to start summarizing or type exit / quit to end): ")
-
-            print(f"prompt: {prompt}")
 
             if prompt.lower() in ["exit", "quit"]:
                 break

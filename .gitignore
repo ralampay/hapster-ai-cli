@@ -47,3 +47,6 @@ htmlcov/
 *.pyd
 
 .env
+
+# Temp
+!tmp/.keep
