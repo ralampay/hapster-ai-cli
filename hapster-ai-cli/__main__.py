@@ -33,7 +33,7 @@ if torch.cuda.is_available():
 def main():
     parser = argparse.ArgumentParser(description="HAC: Hapster AI CLI")
 
-    parser.add_argument("--command", type=str, default="illustrate_story")
+    parser.add_argument("--command", type=str, default="analyze_document")
 
     args = parser.parse_args()
 

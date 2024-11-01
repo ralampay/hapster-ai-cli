@@ -1,6 +1,40 @@
 models:
   -
     type: huggingface
+    category: ["chat"]
+    model_id: "distilbert/distilgpt2"
+    filenames:
+      - "config.json"
+      - "coreml_model.mlmodel"
+      - "flax_model.msgpack"
+      - "generation_config.json"
+      - "generation_config_for_text_generation.json"
+      - "merges.txt"
+      - "model.safetensors"
+      - "pytorch_model.bin"
+      - "rust_model.ot"
+      - "tf_model.h5"
+      - "tokenizer.json"
+      - "tokenizer_config.json"
+      - "vocab.json"
+  -
+    type: huggingface
+    category: ["text_summarization", "chat"]
+    model_id: "facebook/bart-large-cnn"
+    filenames:
+      - "config.json"
+      - "flax_model.msgpack"
+      - "generation_config.json"
+      - "generation_config_for_summarization.json"
+      - "merges.txt"
+      - "model.safetensors"
+      - "pytorch_model.bin"
+      - "rust_model.ot"
+      - "tf_model.h5"
+      - "tokenizer.json"
+      - "vocab.json"
+  -
+    type: huggingface
     category: ["text_summarization"]
     model_id: "allenai/led-base-16384"
     filenames:

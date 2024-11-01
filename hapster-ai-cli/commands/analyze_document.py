@@ -1,11 +1,11 @@
 import os
 import sys
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, pipeline
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from utils.commons import load_huggingface_config, find_model_by_category, extract_text_from_pdf, extract_file_path
+from utils.commons import load_huggingface_config, find_model_by_category, extract_text_from_pdf, extract_file_path, extract_text_from_txt, get_file_extension
 
 class AnalyzeDocument:
     def __init__(self, settings=None, models=None, hugging_face_api_key=None):
@@ -46,7 +46,13 @@ class AnalyzeDocument:
                 doc_filepath = extract_file_path(prompt)
 
                 if doc_filepath is not None:
-                    content = extract_text_from_pdf(doc_filepath)
+
+                    file_ext = get_file_extension(doc_filepath)
+
+                    if file_ext == ".pdf":
+                        content = extract_text_from_pdf(doc_filepath)
+                    else:
+                        content = extract_text_from_txt(doc_filepath)
 
                     prompt = f"Summarize --- {content} ---"
 
@@ -62,50 +68,53 @@ class AnalyzeDocument:
                 print("Chat AI:")
                 print(response)
 
-    def generate_document_summary(self, prompt, max_length=20240, max_new_tokens=150, temperature=0.7, top_p=0.9):
-        prompt = "\n".join(self.context)
+    def generate_document_summary(self, prompt, max_length=16384, max_new_tokens=150, temperature=0.7, top_p=0.9):
+        # Do not join prompt when summarizing
+        #self.context.append(f"User: {prompt}")
 
-        inputs = self.text_summarization_tokenizer(prompt, padding="max_length", max_length=max_length, return_tensors="pt", truncation=True)
+        #prompt = "\n".join(self.context)
 
-        global_attention_mask = torch.zeros_like(inputs["attention_mask"])
+        summarizer = pipeline("summarization", model=self.text_summarization_model_id)
 
-        outputs = self.text_summarization_model.generate(
-            inputs["input_ids"],
-            max_length=max_length,
-            global_attention_mask=global_attention_mask
+        result = summarizer(
+            prompt,
+            max_new_tokens=max_new_tokens,
+            do_sample=True,
+            temperature=temperature,
+            top_p=top_p
         )
 
-        response = ""
-
-        for output in outputs:
-            response += self.text_summarization_tokenizer.decode(output, skip_special_tokens=True)
+        response = result[0]["summary_text"]
 
         self.context.append(f"AI: {response}")
 
         return response
 
-    def generate_chat_response(self, prompt, max_length=10000, max_new_tokens=150, temperature=0.7, top_p=0.9):
+    def generate_chat_response(self, prompt, max_length=10000, max_new_tokens=150, temperature=0.5, top_p=0.9, min_length=158):
         self.context.append(f"User: {prompt}")
+
         prompt = "\n".join(self.context)
 
-        inputs = self.chat_tokenizer(prompt, return_tensors="pt")
-
-        outputs = self.chat_model.generate(
-            inputs["input_ids"],
-            max_length=max_length,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=True,
-            pad_token_id=self.chat_tokenizer.eos_token_id,
-            attention_mask=inputs["attention_mask"]
+        generator = pipeline(
+            "text-generation", 
+            model=self.chat_model_id
         )
 
-        response = ""
+        generation_kwargs = {
+            "max_new_tokens": max_new_tokens,                   # Maximum length of the generated response
+            "temperature": temperature,                         # Balances randomness and determinism
+            "top_k": 50,                                        # Filters the top 50 tokens to consider for each step
+            "top_p": top_p,                                     # Nucleus sampling, keeps only top tokens summing to 90% probability
+            "do_sample": True,
+            "pad_token_id": generator.tokenizer.eos_token_id    # Ensures padding does not affect the response
+        }
 
-        for output in outputs:
-            response += self.chat_tokenizer.decode(output, skip_special_tokens=True)
+        generated_text = generator(
+            prompt,
+            **generation_kwargs
+        )
 
-        response = response[len(prompt):].strip()
+        response = generated_text[0]["generated_text"]
 
         self.context.append(f"AI: {response}")
 

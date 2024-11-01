@@ -2,6 +2,10 @@ from huggingface_hub import hf_hub_download
 import PyPDF2
 from markdown import markdown
 import re
+import os
+
+def get_file_extension(path):
+    return os.path.splitext(path)[1]
 
 def extract_image_path(text):
     match = re.search(r"@generate\s+([^\s]+)", text)
@@ -21,6 +25,12 @@ def find_model_by_category(models_data, category, model_id):
             return model
 
     return None
+
+def extract_text_from_txt(txt_path):
+    with open(txt_path, 'r') as file:
+        content = file.read()
+
+        return content
 
 def extract_text_from_pdf(pdf_path):
     with open(pdf_path, 'rb') as pdf_file:
