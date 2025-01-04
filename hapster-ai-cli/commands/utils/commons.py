@@ -47,13 +47,21 @@ def extract_text_from_pdf(pdf_path):
 
         return markdown(text)
 
-def load_huggingface_config(settings, hugging_face_api_key):
-    with yaspin(text="Loading model files...", color="cyan") as spinner:
+def load_huggingface_config(settings, hugging_face_api_key, verbose=True):
+    if verbose:
         for filename in settings["filenames"]:
             downloaded_model_path = hf_hub_download(
                 repo_id=settings["model_id"],
                 filename=filename,
                 token=hugging_face_api_key
             )
+    else:
+        with yaspin(text="Loading model files...", color="cyan") as spinner:
+            for filename in settings["filenames"]:
+                downloaded_model_path = hf_hub_download(
+                    repo_id=settings["model_id"],
+                    filename=filename,
+                    token=hugging_face_api_key
+                )
 
-        spinner.ok("✔")
+            spinner.ok("✔")
