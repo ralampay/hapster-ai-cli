@@ -1,0 +1,13 @@
+roboflow:
+  location: tmp
+  workspace: leo-ueno
+  project: people-detection-o4rdr
+  version: 8
+  format: yolov11
+
+ultralytics:
+  model_file: yolo11-custom-one.yaml
+  epochs: 100
+  imgsz: 640
+  batch: 32
+  device: 0

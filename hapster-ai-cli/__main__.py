@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from commands.analyze_document import AnalyzeDocument
 from commands.illustrate_story import IllustrateStory
 from commands.video_detect import VideoDetect
+from commands.train_roboflow_ultralytics import TrainRoboflowUltralytics
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -25,11 +26,13 @@ def main():
 
     parser.add_argument("--command", type=str, default="analyze_document")
     parser.add_argument("--video-file", type=str, default="video.mp4")
+    parser.add_argument("--config-file", type=str, default="config.yaml")
 
     args = parser.parse_args()
 
     command     = args.command
     video_file  = args.video_file
+    config_file = args.config_file
 
     if command == "analyze_document":
         hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
@@ -60,6 +63,24 @@ def main():
         )
 
         cmd.execute()
+
+    elif command == "train_roboflow_ultralytics":
+        roboflow_api_key = os.getenv("ROBOFLOW_API_KEY")
+
+        if not config_file:
+            config_file = 'default_ultralytics_config.yaml'
+
+        # Open config files
+        with open(config_file, "r") as file:
+            config = yaml.safe_load(file)
+
+        cmd = TrainRoboflowUltralytics(
+            api_key=roboflow_api_key,
+            config=config
+        )
+
+        cmd.execute()
+        
 
     print("Done. Have a nice day.")
 

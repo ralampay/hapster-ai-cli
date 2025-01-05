@@ -8,7 +8,15 @@ A command line tool for multi-agent AI tasks.
 python -m hapster-ai-cli --command [command]
 ```
 
-**Possible Tasks / Commands:**
+**Tasks / Commands:**
 
 * `analyze_document`: Uses a chat agent and text summarizer to interact with a document.
-* `detect`: Creates a detection session.
+* `video_detect`: Uses object detection on a video file
+
+## Installation Notes:
+
+* Installing `detectron2`:
+
+```bash
+pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git'
+```
