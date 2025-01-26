@@ -5,6 +5,7 @@ from termcolor import colored
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, pipeline
 from yaspin import yaspin
 from yaspin.spinners import Spinners
+import time
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -27,42 +28,53 @@ class Assist:
             load_huggingface_config(self.chat_model_config, self.hugging_face_api_key)
 
         self.chat_tokenizer = AutoTokenizer.from_pretrained(self.chat_model_id)
-        self.chat_model = AutoModelForCausalLM.from_pretrained(self.chat_model_id, torch_dtype=torch.float16)
+        self.chat_model = AutoModelForCausalLM.from_pretrained(
+            self.chat_model_id, 
+            device_map="auto"   # Automatically map to GPU if available
+        )
     
     def execute(self):
         while True:
-            prompt = input(colored("Prompt:\n", "light_cyan"))
+            prompt = input(colored("Prompt: ", "light_cyan"))
 
             if prompt.lower() in ["exit", "quit"]:
                 break
-            with yaspin(text="Generating response...", color="cyan") as spinner:
+
+            start_time = time.time()
+            with yaspin(text="", color="cyan") as spinner:
                 response = self.generate_chat_response(prompt)
                 spinner.ok("✔")
+                #spinner.ok("")
+                #spinner.ok(colored(f"AI: {response}", "cyan"))
+                print(colored(f"AI: {response}", "cyan"))
 
-            print(colored("Chat AI:\n", "light_blue"))
-            print(response)
-            print("\n")
+    def generate_chat_response(self, prompt, max_length=100, max_new_tokens=50, temperature=0.9, top_p=0.9, min_length=158, repetition_penalty=1):
+        user_chat = {
+            "role": "User",
+            "content": prompt
+        }
 
-    def generate_chat_response(self, prompt, max_length=10000, max_new_tokens=50, temperature=0.9, top_p=0.9, min_length=158):
-        self.context.append(f"User: {prompt}")
-
-        prompt = "\n".join(self.context)
+        self.context.append(user_chat)
 
         generator = pipeline(
             "text-generation", 
-            model=self.chat_model_id
+            model=self.chat_model,
+            tokenizer=self.chat_tokenizer
         )
 
         generation_kwargs = {
-            "max_new_tokens": max_new_tokens,                   # Maximum length of the generated response
-            "batch_size": 1,
-            "max_length": 256,
-            "temperature": temperature,                         # Balances randomness and determinism
-            "top_k": 5,                                         # Filters the top 50 tokens to consider for each step
+            #"max_length": max_length,
+            "max_new_tokens": max_new_tokens,
+            "temperature": temperature,
+            "repetition_penalty": repetition_penalty,
             "top_p": top_p,                                     # Nucleus sampling, keeps only top tokens summing to 90% probability
-            "do_sample": True,
-            "pad_token_id": generator.tokenizer.eos_token_id    # Ensures padding does not affect the response
+            "pad_token_id": generator.tokenizer.pad_token_id,    # Ensures padding does not affect the response
+            "eos_token_id": generator.tokenizer.eos_token_id,
+            "truncation": True,
+            "do_sample": True
         }
+
+        input_prompt = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}\n" for msg in self.context]).join(f"\n\n\n{prompt}")
 
         generated_text = generator(
             prompt,
@@ -71,6 +83,11 @@ class Assist:
 
         response = generated_text[0]["generated_text"]
 
-        self.context.append(f"AI: {response}")
+        ai_chat = {
+            'role': 'assistant',
+            'content': response
+        }
+
+        self.context.append(ai_chat)
 
         return response
