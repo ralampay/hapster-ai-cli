@@ -15,6 +15,11 @@ python -m hapster-ai-cli --command [command]
 
 ## Installation Notes:
 
+* Install special ultralytics fork:
+
+```bash
+```
+
 * Installing `detectron2`:
 
 ```bash

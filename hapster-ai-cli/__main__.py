@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from commands.analyze_document import AnalyzeDocument
+from commands.assist import Assist
 from commands.illustrate_story import IllustrateStory
 from commands.video_detect import VideoDetect
 from commands.train_roboflow_ultralytics import TrainRoboflowUltralytics
@@ -24,7 +25,8 @@ if torch.cuda.is_available():
 def main():
     parser = argparse.ArgumentParser(description="HAC: Hapster AI CLI")
 
-    parser.add_argument("--command", type=str, default="analyze_document")
+    #parser.add_argument("--command", type=str, default="analyze_document")
+    parser.add_argument("--command", type=str, default="assist")
     parser.add_argument("--video-file", type=str, default="video.mp4")
     parser.add_argument("--config-file", type=str, default="config.yaml")
 
@@ -34,7 +36,27 @@ def main():
     video_file  = args.video_file
     config_file = args.config_file
 
-    if command == "analyze_document":
+    if command == "assist":
+        hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
+        models_loc = os.getenv("MODELS_LOC")
+        mas_loc = os.getenv("MAS_LOC")
+
+        # Open config files
+        with open(models_loc, "r") as file:
+            config_models = yaml.safe_load(file)
+
+        with open(mas_loc, "r") as file:
+            config_mas = yaml.safe_load(file)
+
+        cmd = Assist(
+            settings=config_mas.get('mas').get("assist"),
+            models=config_models.get('models'),
+            hugging_face_api_key=hugging_face_api_key
+        )
+
+        cmd.execute()
+
+    elif command == "analyze_document":
         hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
         models_loc = os.getenv("MODELS_LOC")
         mas_loc = os.getenv("MAS_LOC")

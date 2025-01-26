@@ -77,7 +77,7 @@ class AnalyzeDocument:
 
             print("\n")
 
-    def generate_document_summary(self, prompt, max_length=16384, max_new_tokens=150, temperature=0.7, top_p=0.9):
+    def generate_document_summary(self, prompt, max_length=32000, max_new_tokens=150, temperature=0.7, top_p=0.9):
         summarizer = pipeline("summarization", model=self.text_summarization_model_id)
 
         result = summarizer(

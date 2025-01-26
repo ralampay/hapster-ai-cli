@@ -1,7 +1,9 @@
 mas:
+  assist:
+    #chat: "deepseek-ai/deepseek-llm-7b-base"
+    chat: "meta-llama/Meta-Llama-3-8B"
   document_analyzer:
     chat: "ericzzz/falcon-rw-1b-instruct-openorca"
-    #chat: "meta-llama/Meta-Llama-3-8B"
     text_summarization: "facebook/bart-large-cnn"
   illustrate_story:
     chat: "ericzzz/falcon-rw-1b-instruct-openorca"

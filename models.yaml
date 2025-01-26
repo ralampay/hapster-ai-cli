@@ -2,6 +2,18 @@ models:
   -
     type: huggingface
     category: ["chat"]
+    model_id: deepseek-ai/deepseek-llm-7b-base
+    filenames:
+      - config.json
+      - generation_config.json
+      - pytorch_model-00001-of-00002.bin
+      - pytorch_model-00002-of-00002.bin
+      - pytorch_model.bin.index.json
+      - tokenizer.json
+      - tokenizer_config.json
+  -
+    type: huggingface
+    category: ["chat"]
     model_id: "meta-llama/Meta-Llama-3-8B"
     filenames:
       - "config.json"
