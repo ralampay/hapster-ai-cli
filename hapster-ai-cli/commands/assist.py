@@ -30,7 +30,8 @@ class Assist:
         self.chat_tokenizer = AutoTokenizer.from_pretrained(self.chat_model_id)
         self.chat_model = AutoModelForCausalLM.from_pretrained(
             self.chat_model_id, 
-            device_map="auto"   # Automatically map to GPU if available
+            device_map="auto",   # Automatically map to GPU if available,
+            offload_folder="./"
         )
     
     def execute(self):
