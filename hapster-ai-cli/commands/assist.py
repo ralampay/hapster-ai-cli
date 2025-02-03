@@ -20,10 +20,10 @@ class Assist:
         settings=None, 
         models=None, 
         hugging_face_api_key=None,
-        max_new_tokens=100,
-        temperature=0.5,
+        max_new_tokens=150,
+        temperature=0.9,
         max_length=100,
-        top_p=0.9,
+        top_p=0.8,
         min_length=158,
         repetition_penalty=1.2
     ):
@@ -59,7 +59,9 @@ class Assist:
             "text-generation", 
             model=self.chat_model,
             tokenizer=self.chat_tokenizer,
-            max_new_tokens=self.max_new_tokens
+            max_new_tokens=self.max_new_tokens,
+            temperature=self.temperature,
+            do_sample=True
         )
 
         self.model_kwargs = {
@@ -72,7 +74,8 @@ class Assist:
             "eos_token_id": self.pipe.tokenizer.eos_token_id,
             "truncation": True,
             "do_sample": True,
-            "return_full_text": False
+            "return_full_text": False,
+            "min_length": self.min_length
         }
 
         self.llm = HuggingFacePipeline(

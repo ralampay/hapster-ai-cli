@@ -12,6 +12,7 @@ from commands.assist import Assist
 from commands.illustrate_story import IllustrateStory
 from commands.video_detect import VideoDetect
 from commands.train_roboflow_ultralytics import TrainRoboflowUltralytics
+from commands.generate_exam_item import GenerateExamItem
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -26,7 +27,7 @@ def main():
     parser = argparse.ArgumentParser(description="HAC: Hapster AI CLI")
 
     #parser.add_argument("--command", type=str, default="analyze_document")
-    parser.add_argument("--command", type=str, default="assist")
+    parser.add_argument("--command", type=str, default="generate_exam_item")
     parser.add_argument("--video-file", type=str, default="video.mp4")
     parser.add_argument("--config-file", type=str, default="config.yaml")
 
@@ -52,6 +53,15 @@ def main():
             settings=config_mas.get('mas').get("assist"),
             models=config_models.get('models'),
             hugging_face_api_key=hugging_face_api_key
+        )
+
+        cmd.execute()
+
+    elif command == "generate_exam_item":
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+
+        cmd = GenerateExamItem(
+            openai_api_key=openai_api_key
         )
 
         cmd.execute()
