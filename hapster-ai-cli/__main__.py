@@ -112,9 +112,6 @@ def main():
         )
 
         cmd.execute()
-        
-
-    print("Done. Have a nice day.")
 
 def print_settings():
     #print(f"HUGGING_FACE_API_KEY: {hugging_face_api_key}")

@@ -52,22 +52,20 @@ prompt_template = PromptTemplate(
 )
 
 class GenerateExamItem:
-    def __init__(self, topic="Programming", model_id="gpt-3.5-turbo", openai_api_key=None):
+    def __init__(self, topic="AWS Solutions Architect", model_id="gpt-3.5-turbo", openai_api_key=None):
         self.model_id = model_id
 
         self.llm = ChatOpenAI(
             model=self.model_id
         )
 
-        self.chain = LLMChain(llm=self.llm, prompt=prompt_template)
-
         self.topic = topic
 
+        self.chain = prompt_template | self.llm
+
     def execute(self):
-        print("Generating exam item...")
+        response = self.chain.invoke({ "topic": self.topic, "format_instructions": format_instructions })
 
-        response = self.chain.run(topic=self.topic, format_instructions=format_instructions)
+        parsed_response = output_parser.parse(response.content)
 
-        parsed_response = output_parser.parse(response)
-
-        print(parsed_response)
+        print(json.dumps(parsed_response, indent=4))
