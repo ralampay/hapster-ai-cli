@@ -1,4 +1,3 @@
-#from langchain_community.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain_core.prompts import PromptTemplate
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
@@ -52,11 +51,12 @@ prompt_template = PromptTemplate(
 )
 
 class GenerateExamItem:
-    def __init__(self, topic="AWS Solutions Architect", model_id="gpt-3.5-turbo", openai_api_key=None):
+    def __init__(self, topic="AWS Solutions Architect", model_id="gpt-4o-mini", openai_api_key=None):
         self.model_id = model_id
 
         self.llm = ChatOpenAI(
-            model=self.model_id
+            model=self.model_id,
+            temperature=0.5
         )
 
         self.topic = topic

@@ -13,6 +13,7 @@ from commands.illustrate_story import IllustrateStory
 from commands.video_detect import VideoDetect
 from commands.train_roboflow_ultralytics import TrainRoboflowUltralytics
 from commands.generate_exam_item import GenerateExamItem
+from commands.vectorize import Vectorize
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -27,7 +28,8 @@ def main():
     parser = argparse.ArgumentParser(description="HAC: Hapster AI CLI")
 
     #parser.add_argument("--command", type=str, default="analyze_document")
-    parser.add_argument("--command", type=str, default="generate_exam_item")
+    #parser.add_argument("--command", type=str, default="generate_exam_item")
+    parser.add_argument("--command", type=str, default="vectorize")
     parser.add_argument("--video-file", type=str, default="video.mp4")
     parser.add_argument("--config-file", type=str, default="config.yaml")
 
@@ -54,6 +56,11 @@ def main():
             models=config_models.get('models'),
             hugging_face_api_key=hugging_face_api_key
         )
+
+        cmd.execute()
+
+    elif command == "vectorize":
+        cmd = Vectorize()
 
         cmd.execute()
 
