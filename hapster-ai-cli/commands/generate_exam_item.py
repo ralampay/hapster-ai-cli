@@ -16,6 +16,8 @@ output_parser = StructuredOutputParser.from_response_schemas(response_schema)
 # Get the format instructions for the prompt
 format_instructions = output_parser.get_format_instructions()
 
+#print(format_instructions)
+
 # Define the prompt template with explicit JSON format instructions
 prompt_template = PromptTemplate(
     input_variables=["topic"],
@@ -51,7 +53,7 @@ prompt_template = PromptTemplate(
 )
 
 class GenerateExamItem:
-    def __init__(self, topic="AWS Solutions Architect", model_id="gpt-4o-mini", openai_api_key=None):
+    def __init__(self, topic="Biology", model_id="gpt-4o-mini", openai_api_key=None):
         self.model_id = model_id
 
         self.llm = ChatOpenAI(
@@ -64,7 +66,10 @@ class GenerateExamItem:
         self.chain = prompt_template | self.llm
 
     def execute(self):
-        response = self.chain.invoke({ "topic": self.topic, "format_instructions": format_instructions })
+        response = self.chain.invoke({ 
+            "topic": self.topic, 
+            "format_instructions": format_instructions 
+        })
 
         parsed_response = output_parser.parse(response.content)
 

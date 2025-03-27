@@ -6,6 +6,9 @@ import os
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 
+def file_exists(loc):
+    return os.path.exists(loc)
+
 def get_file_extension(path):
     return os.path.splitext(path)[1]
 

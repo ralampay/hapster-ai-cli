@@ -14,6 +14,7 @@ from commands.video_detect import VideoDetect
 from commands.train_roboflow_ultralytics import TrainRoboflowUltralytics
 from commands.generate_exam_item import GenerateExamItem
 from commands.vectorize import Vectorize
+from commands.online_vectorize import OnlineVectorize
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -29,15 +30,18 @@ def main():
 
     #parser.add_argument("--command", type=str, default="analyze_document")
     #parser.add_argument("--command", type=str, default="generate_exam_item")
-    parser.add_argument("--command", type=str, default="vectorize")
+    #parser.add_argument("--command", type=str, default="vectorize")
+    parser.add_argument("--command", type=str, default="online_vectorize")
     parser.add_argument("--video-file", type=str, default="video.mp4")
     parser.add_argument("--config-file", type=str, default="config.yaml")
+    parser.add_argument("--file-location", type=str, default="./tmp/test.txt")
 
     args = parser.parse_args()
 
-    command     = args.command
-    video_file  = args.video_file
-    config_file = args.config_file
+    command         = args.command
+    video_file      = args.video_file
+    config_file     = args.config_file
+    file_location   = args.file_location
 
     if command == "assist":
         hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
@@ -60,7 +64,16 @@ def main():
         cmd.execute()
 
     elif command == "vectorize":
-        cmd = Vectorize()
+        cmd = Vectorize(
+            file_location=file_location
+        )
+
+        cmd.execute()
+
+    elif command == "online_vectorize":
+        cmd = OnlineVectorize(
+            file_location=file_location
+        )
 
         cmd.execute()
 
